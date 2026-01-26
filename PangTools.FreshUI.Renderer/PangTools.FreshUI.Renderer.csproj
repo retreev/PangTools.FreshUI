@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PangTools.FreshUI.Serialization\PangTools.FreshUI.Serialization.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+      <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
+    </ItemGroup>
+
+</Project>
