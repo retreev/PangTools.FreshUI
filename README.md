@@ -9,7 +9,7 @@ is called "Refresh" (very obviously in files and class names).
 
 ## Repository Overview
 
-### `PangTools.FreshUI.Serialization`
+### [`PangTools.FreshUI.Serialization`](./PangTools.FreshUI.Serialization)
 
 `PangTools.FreshUI.Serialization` contains models and utilities to serialize
 the XML format into usable data structures.
@@ -20,7 +20,7 @@ the XML format into usable data structures.
 UI elements into an `ImageSharp` canvas. Most methods are provided as extension
 methods to the regular image processing context.
 
-### `PangTools.FreshUI.CLI`
+### [`PangTools.FreshUI.CLI`](./PangTools.FreshUI.CLI)
 
 `PangTools.FreshUI.CLI` contains a CLI application that renders the XML definition
 to images.
