@@ -1,4 +1,4 @@
-﻿namespace PangTools.FreshUI.Renderer;
+﻿namespace PangTools.FreshUI.Renderer.Extensions;
 
 public static class StringExtensions
 {

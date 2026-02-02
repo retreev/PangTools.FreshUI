@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using PangTools.FreshUI.Renderer.Extensions;
+using SixLabors.ImageSharp;
 
 namespace PangTools.FreshUI.Renderer;
 

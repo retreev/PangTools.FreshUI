@@ -1,4 +1,5 @@
-﻿using PangTools.FreshUI.Serialization.DTO;
+﻿using PangTools.FreshUI.Renderer.Extensions;
+using PangTools.FreshUI.Serialization.DTO;
 using PangTools.FreshUI.Serialization.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;

@@ -7,7 +7,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Fonts;
 
-namespace PangTools.FreshUI.Renderer;
+namespace PangTools.FreshUI.Renderer.Extensions;
 
 public static class ImageProcessingContextExtensions
 {
