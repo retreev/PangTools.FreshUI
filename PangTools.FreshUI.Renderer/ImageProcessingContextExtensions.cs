@@ -27,7 +27,12 @@ public static class ImageProcessingContextExtensions
     
     public static IImageProcessingContext DrawArea(this IImageProcessingContext ctx, Item areaItem, FileAtlas fileAtlas, bool drawOutline = false)
     {
-        int[] areaItemRect = areaItem.Rectangle.Split(" ").Select(Int32.Parse).ToArray();
+        int[]? areaItemRect = areaItem.Rectangle?.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).Select(Int32.Parse).ToArray();
+
+        if (areaItemRect == null || areaItemRect.Length != 4)
+        {
+            return ctx;
+        }
 
         Parameter? bgParam = areaItem.Parameters.FirstOrDefault(p => p.Name.Equals("bgimg"));
         Parameter? stretchParam = areaItem.GetParameter("stretch");
