@@ -38,6 +38,8 @@ public class ImageSharpRenderer
                     break;
             }
             
+            image.Mutate(ctx => CropImage(ref ctx, element));
+            
             images.Add($"{element.Name}_{buttonState}.png", image);
         }
 
@@ -96,6 +98,22 @@ public class ImageSharpRenderer
                     ctx.DrawInput(item);
                     break;
             }
+        }
+    }
+
+    private void CropImage(ref IImageProcessingContext ctx, Element element)
+    {
+        if (element.Size != null)
+        {
+            int[] sizes = element.Size.Split(" ").Select(Int32.Parse).ToArray();
+            int width = sizes[0];
+            int height = sizes[1];
+                
+            ctx.Crop(new Rectangle(0, 0, width, height));
+        }
+        else if (element.Base != null)
+        {
+            ctx.Crop(new Rectangle(0, 0, (int)element.Base.Width, (int)element.Base.Height));
         }
     }
 }
