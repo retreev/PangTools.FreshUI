@@ -74,11 +74,27 @@ public static class ImageProcessingContextExtensions
 
     public static IImageProcessingContext DrawButton(this IImageProcessingContext ctx, Item buttonItem, string buttonState, FileAtlas fileAtlas)
     {
-        int[] pos = buttonItem.Position.Split(" ").Select(Int32.Parse).ToArray();
-            
-        Parameter? stateParam = buttonItem.Parameters.FirstOrDefault(p => p.Name.Equals(buttonState));
+        int[]? pos = null;
+        
+        if (buttonItem.Position != null)
+        {
+            pos = buttonItem.Position.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).Select(Int32.Parse).ToArray();
+        }
 
-        if (stateParam != null)
+        if (buttonItem.Rectangle != null)
+        {
+            int[] buttonRect = buttonItem.Rectangle.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).Select(Int32.Parse).ToArray();
+
+            pos = new int[2]
+            {
+                buttonRect[0],
+                buttonRect[1]
+            };
+        }
+        
+        Parameter? stateParam = buttonItem.GetParameter(buttonState);
+
+        if (pos != null && stateParam != null && stateParam.Value.Length > 0)
         {
             Image? normalTexture = fileAtlas.GetImage($"{stateParam.Value}.");
 
