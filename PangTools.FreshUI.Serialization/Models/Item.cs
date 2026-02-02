@@ -14,8 +14,10 @@ public class Item
     public string Name;
     
     [XmlAttribute("caption")]
-    public string Caption;
     public string? Caption;
+
+    [XmlAttribute("resource")] 
+    public string? Resource;
     
     [XmlAttribute("pos")]
     public string? Position;
@@ -24,6 +26,13 @@ public class Item
     public string? Rectangle;
 
     [XmlElementAttribute("param")]
-    public List<Parameter> Parameters;
     public List<Parameter>? Parameters;
+    
+    public Parameter? GetParameter(string parameterName)
+    {
+        return Parameters.FirstOrDefault(p => p.Name.Equals(parameterName));
+    }
+    
+    [XmlElementAttribute("item")]
+    public List<Item>? Items;
 }
