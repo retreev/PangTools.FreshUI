@@ -31,8 +31,14 @@ public static class ImageProcessingContextExtensions
 
         Parameter? bgParam = areaItem.Parameters.FirstOrDefault(p => p.Name.Equals("bgimg"));
         Parameter? stretchParam = areaItem.GetParameter("stretch");
+        Parameter? visibleParam = areaItem.GetParameter("visible");
 
-        if (bgParam != null && bgParam.Value != "")
+        if (visibleParam != null && visibleParam.Value == "0")
+        {
+            return ctx;
+        }
+
+        if (bgParam != null && bgParam.Value.Length > 0)
         {
             Image? bgTexture = fileAtlas.GetImage($"{bgParam.Value}.");
 
