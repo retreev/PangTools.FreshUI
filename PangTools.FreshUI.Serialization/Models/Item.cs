@@ -15,13 +15,15 @@ public class Item
     
     [XmlAttribute("caption")]
     public string Caption;
+    public string? Caption;
     
     [XmlAttribute("pos")]
-    public string Position;
+    public string? Position;
     
     [XmlAttribute("rect")]
-    public string Rectangle;
+    public string? Rectangle;
 
     [XmlElementAttribute("param")]
     public List<Parameter> Parameters;
+    public List<Parameter>? Parameters;
 }
