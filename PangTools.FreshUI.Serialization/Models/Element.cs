@@ -30,4 +30,7 @@ public class Element
     
     [XmlElementAttribute("cfrm")]
     public Frame? ClearFrame;
+
+    [XmlElementAttribute("base")] 
+    public Base? Base;
 }
