@@ -5,9 +5,7 @@ using PangTools.FreshUI.Renderer;
 using PangTools.FreshUI.Serialization.DTO;
 using PangTools.FreshUI.Serialization.Factories;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using PangTools.FreshUI.Serialization.Models;
-using SixLabors.ImageSharp.Processing;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -33,14 +31,22 @@ Option<bool> debugOption = new("--debug")
     DefaultValueFactory = (result => false)
 };
 
+Option<string> outputDirectoryOption = new("--output-directory")
+{
+    Description = "Specify a folder to output rendered images to",
+    DefaultValueFactory = (result => "")
+};
+
 RootCommand rootCommand = new("Preview Pangya UI files");
 rootCommand.Options.Add(dataDirectoryOption);
 rootCommand.Options.Add(fileOption);
 rootCommand.Options.Add(buttonStateOption);
 rootCommand.Options.Add(debugOption);
+rootCommand.Options.Add(outputDirectoryOption);
 
 rootCommand.SetAction(parseResult =>
 {
+    string outputDirectory = parseResult.GetValue(outputDirectoryOption);
     string fileName = parseResult.GetValue(fileOption);
     DirectoryInfo dataDirectory = parseResult.GetValue(dataDirectoryOption);
     string buttonState = parseResult.GetValue(buttonStateOption);
