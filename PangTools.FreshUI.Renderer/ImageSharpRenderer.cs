@@ -46,7 +46,6 @@ public class ImageSharpRenderer
 
     private Image RenderElement(ref Image image, Element element, string buttonState)
     {
-        Console.WriteLine($"Rendering element '{element.Name}'");
         image.Mutate(ctx =>
         {
             switch (element.Type)
