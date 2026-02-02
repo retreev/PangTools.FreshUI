@@ -30,6 +30,7 @@ public static class ImageProcessingContextExtensions
         int[] areaItemRect = areaItem.Rectangle.Split(" ").Select(Int32.Parse).ToArray();
 
         Parameter? bgParam = areaItem.Parameters.FirstOrDefault(p => p.Name.Equals("bgimg"));
+        Parameter? stretchParam = areaItem.GetParameter("stretch");
 
         if (bgParam != null && bgParam.Value != "")
         {
@@ -37,6 +38,17 @@ public static class ImageProcessingContextExtensions
 
             if (bgTexture != null)
             {
+                if (stretchParam != null && stretchParam.Value == "1")
+                {
+                    bgTexture.Mutate(bgCtx =>
+                    {
+                        bgCtx.Resize(new Size(
+                            areaItemRect[2] - areaItemRect[0],
+                            areaItemRect[3] - areaItemRect[1]
+                        ));
+                    });
+                }
+                
                 ctx.DrawImage(bgTexture, new Point(areaItemRect[0], areaItemRect[1]), 1f); 
             }
         }
