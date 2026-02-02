@@ -1,8 +1,11 @@
-﻿using PangTools.FreshUI.Serialization.DTO;
+﻿using System.Numerics;
+using PangTools.FreshUI.Renderer.Helpers;
+using PangTools.FreshUI.Serialization.DTO;
 using SixLabors.ImageSharp;
 using PangTools.FreshUI.Serialization.Models;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.Fonts;
 
 namespace PangTools.FreshUI.Renderer;
 
@@ -34,7 +37,7 @@ public static class ImageProcessingContextExtensions
             return ctx;
         }
 
-        Parameter? bgParam = areaItem.Parameters.FirstOrDefault(p => p.Name.Equals("bgimg"));
+        Parameter? bgParam = areaItem.GetParameter("bgimg");
         Parameter? stretchParam = areaItem.GetParameter("stretch");
         Parameter? visibleParam = areaItem.GetParameter("visible");
 
@@ -278,6 +281,36 @@ public static class ImageProcessingContextExtensions
             {
                 ctx.DrawImage(baseBackground, new Point(0, 0), 1f);
             } 
+        }
+
+        return ctx;
+    }
+
+    public static IImageProcessingContext DrawInput(this IImageProcessingContext ctx, Item inputItem)
+    {
+        int[] inputRect = inputItem.Rectangle.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).Select(Int32.Parse).ToArray();
+
+        Parameter? backgroundColorParam = inputItem.GetParameter("bgcolor");
+        Parameter? borderColorParam = inputItem.GetParameter("bordercolor");
+        Parameter? lineHeightParam = inputItem.GetParameter("lineheight");
+        Parameter? topMarginParam = inputItem.GetParameter("topmargin");
+        int lineHeight = lineHeightParam != null ? Int32.Parse(lineHeightParam.Value) : 0;
+        int topMargin = topMarginParam != null ? Int32.Parse(topMarginParam.Value) : 0;
+
+        int inputHeight = lineHeight + (topMargin * 2);
+
+        if (backgroundColorParam != null)
+        {
+            Color backgroundColor = Color.Parse(ColorHelper.ARGBtoRBGA(backgroundColorParam.Value));
+
+            ctx.Fill(backgroundColor, new RectangleF(inputRect[0], inputRect[1], inputRect[2] - inputRect[0], inputHeight > 0 ? inputHeight : inputRect[3]));
+        }
+
+        if (borderColorParam != null)
+        {
+            Color borderColor = Color.Parse(ColorHelper.ARGBtoRBGA(borderColorParam.Value));
+
+            ctx.Draw(borderColor, 1f, new RectangleF(inputRect[0], inputRect[1], inputRect[2] - inputRect[0], inputHeight > 0 ? inputHeight : inputRect[3]));
         }
 
         return ctx;
