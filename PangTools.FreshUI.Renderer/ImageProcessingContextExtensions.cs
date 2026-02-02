@@ -206,4 +206,67 @@ public static class ImageProcessingContextExtensions
 
         return ctx;
     }
+
+    public static IImageProcessingContext DrawStatic(this IImageProcessingContext ctx, Item staticItem)
+    {
+        int[] pos = staticItem.Position?.Split(" ").Select(Int32.Parse).ToArray();
+
+        if (pos != null && staticItem.Caption != null)
+        {
+            Parameter? colorParam = staticItem.GetParameter("color");
+            Parameter? alignParam = staticItem.GetParameter("align");
+            Color textColor;
+            HorizontalAlignment horizontalAlignment;
+            
+            if (colorParam != null)
+            {
+                string staticColor = ColorHelper.ARGBtoRBGA(colorParam.Value);
+                textColor = Color.Parse(staticColor);
+            }
+            else
+            {
+                textColor = Color.Black;
+            }
+
+            if (alignParam != null)
+            {
+                switch (int.Parse(alignParam.Value))
+                {
+                    case 1:
+                        horizontalAlignment = HorizontalAlignment.Center;
+                        break;
+                    case 2:
+                        horizontalAlignment = HorizontalAlignment.Right;
+                        break;
+                    default:
+                        horizontalAlignment = HorizontalAlignment.Left;
+                        break;
+                }
+            }
+            else
+            {
+                horizontalAlignment = HorizontalAlignment.Left;
+            }
+            
+            FontFamily arialFontFamily = SystemFonts.Get("Malgun Gothic");
+            Font arial = arialFontFamily.CreateFont(14f, FontStyle.Regular);
+            ctx.DrawText(
+                new DrawingOptions()
+                {
+                    Transform = Matrix3x2.CreateTranslation(pos[0], pos[1])
+                },
+                new RichTextOptions(arial)
+                {
+                    HorizontalAlignment = horizontalAlignment
+                },
+                staticItem.Caption, 
+                Brushes.Solid(textColor),
+                null
+            );
+        }
+
+        return ctx;
+    }
+        return ctx;
+    }
 }
