@@ -251,8 +251,11 @@ public static class ImageProcessingContextExtensions
                 horizontalAlignment = HorizontalAlignment.Left;
             }
             
+            // TODO: Either pick a font closely referencing Pangya's UI
+            //       Or add support for laoding in WFT font files
             FontFamily arialFontFamily = SystemFonts.Get("Malgun Gothic");
             Font arial = arialFontFamily.CreateFont(14f, FontStyle.Regular);
+            
             ctx.DrawText(
                 new DrawingOptions()
                 {
