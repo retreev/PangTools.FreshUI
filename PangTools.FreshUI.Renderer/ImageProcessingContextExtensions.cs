@@ -112,6 +112,11 @@ public static class ImageProcessingContextExtensions
         int[] sizes = element.Size.Split(" ").Select(Int32.Parse).ToArray();
         int width = sizes[0];
         int height = sizes[1];
+
+        if (element.Resource == null || !frameInfoAtlas.ContainsKey(element.Resource))
+        {
+            return ctx;
+        }
         
         Dictionary<string, FrameInfo> frameInfo = frameInfoAtlas[element.Resource];
         if (frameInfo.ContainsKey(frameType))
