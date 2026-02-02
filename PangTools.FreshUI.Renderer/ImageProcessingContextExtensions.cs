@@ -267,6 +267,19 @@ public static class ImageProcessingContextExtensions
 
         return ctx;
     }
+
+    public static IImageProcessingContext DrawBase(this IImageProcessingContext ctx, Base baseElement, FileAtlas fileAtlas)
+    {
+        if (baseElement.Background != "")
+        {
+            Image? baseBackground = fileAtlas.GetImage(baseElement.Background);
+
+            if (baseBackground != null)
+            {
+                ctx.DrawImage(baseBackground, new Point(0, 0), 1f);
+            } 
+        }
+
         return ctx;
     }
 }
