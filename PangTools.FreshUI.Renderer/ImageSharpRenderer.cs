@@ -1,0 +1,102 @@
+﻿using PangTools.FreshUI.Serialization.DTO;
+using PangTools.FreshUI.Serialization.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+
+namespace PangTools.FreshUI.Renderer;
+
+public class ImageSharpRenderer
+{
+    private bool _debug;
+
+    private FileAtlas _fileAtlas;
+
+    private FrameInfoAtlas _frameInfoAtlas;
+    
+    public ImageSharpRenderer(FileAtlas fileAtlas, FrameInfoAtlas frameInfoAtlas, bool debug)
+    {
+        _fileAtlas = fileAtlas;
+        _frameInfoAtlas = frameInfoAtlas;
+        _debug = debug;
+    }
+
+    public Dictionary<string, Image> RenderAllElements(Resource resource, string buttonState)
+    {
+        Dictionary<string, Image> images = new();
+
+        foreach (Element element in resource.Elements)
+        {
+            Image image = new Image<Rgba32>(800, 600, Color.Transparent);
+
+            switch (element.Type)
+            {
+                case "FORM":
+                case "LAYOUT":
+                case "MACROITEM":
+                    RenderElement(ref image, element, buttonState);
+                    break;
+            }
+            
+            images.Add($"{element.Name}_{buttonState}.png", image);
+        }
+
+        return images;
+    }
+
+    private Image RenderElement(ref Image image, Element element, string buttonState)
+    {
+        Console.WriteLine($"Rendering element '{element.Name}'");
+        image.Mutate(ctx =>
+        {
+            switch (element.Type)
+            {
+                case "FORM":
+                    ctx.DrawFrame(element, _fileAtlas, _frameInfoAtlas);
+                    break;
+            }
+
+            if (element.Base != null)
+            {
+                ctx.DrawBase(element.Base, _fileAtlas);
+            }
+
+            if (element.Items?.Count > 0)
+            {
+                RenderItems(ref ctx, element.Items, buttonState);    
+            }
+        });
+
+        return image;
+    }
+
+    private void RenderItems(ref IImageProcessingContext ctx, List<Item> items, string buttonState)
+    {
+        foreach (Item item in items)
+        {
+            switch (item.Type)
+            {
+                case "AREA":
+                    ctx.DrawArea(item, _fileAtlas, _debug);
+                    break;
+                case "BUTTON":
+                    ctx.DrawButton(item, buttonState, _fileAtlas);
+                    break;
+                case "STATIC":
+                    ctx.DrawStatic(item);
+                    break;
+                case "GROUPBOX":
+                    if (item.Items?.Count > 0)
+                    {
+                        RenderItems(ref ctx, item.Items, buttonState);    
+                    }
+                    break;
+                case "EDIT":
+                case "COMBOBOX":
+                case "LISTBOX":
+                    ctx.DrawInput(item);
+                    break;
+            }
+        }
+    }
+}

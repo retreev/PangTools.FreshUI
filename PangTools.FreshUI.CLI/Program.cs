@@ -68,32 +68,17 @@ rootCommand.SetAction(parseResult =>
     FrameInfoAtlas frameInfoAtlas =
         FrameInfoFactory.BuildFrameInfo(frameResource.Elements);
 
-    Element[] elements = resource.Elements.Where(item => item.Type.Equals("FORM")).ToArray();
+    ImageSharpRenderer renderer = new(fileAtlas, frameInfoAtlas, debug);
+    Dictionary<string, Image> images = renderer.RenderAllElements(resource, buttonState);
 
-    foreach (Element element in elements)
+    if (outputDirectory != "")
     {
-        Item[] areaItems = element.Items.Where(item => item.Type.Equals("AREA")).ToArray();
-        Item[] buttonItems = element.Items.Where(item => item.Type.Equals("BUTTON")).ToArray();
-
-        using (Image image = new Image<Rgba32>(800, 600, Color.Transparent))
-        {
-            image.Mutate(ctx =>
-            {
-                ctx.DrawElement(element, fileAtlas, frameInfoAtlas, debug);
-
-                foreach (Item area in areaItems)
-                {
-                    ctx.DrawArea(area, fileAtlas, debug);
-                }
-
-                foreach (Item button in buttonItems)
-                {
-                    ctx.DrawButton(button, buttonState, fileAtlas);
-                }
-            });
-        
-            image.Save($"{element.Name}_{buttonState}.png");
-        }        
+        Directory.CreateDirectory(outputDirectory);    
+    }
+    
+    foreach(KeyValuePair<string, Image> entry in images)
+    {
+        entry.Value.Save(outputDirectory + entry.Key);
     }
     
     return 0;
