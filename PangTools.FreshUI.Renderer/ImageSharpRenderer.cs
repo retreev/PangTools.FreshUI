@@ -54,7 +54,7 @@ public class ImageSharpRenderer
             switch (element.Type)
             {
                 case "FORM":
-                    ctx.DrawFrame(element, _fileAtlas, _frameInfoAtlas);
+                    ctx.DrawElementFrame(element, _fileAtlas, _frameInfoAtlas);
                     break;
             }
 
@@ -83,6 +83,9 @@ public class ImageSharpRenderer
                     break;
                 case "BUTTON":
                     ctx.DrawButton(item, buttonState, _fileAtlas);
+                    break;
+                case "FRAME":
+                    ctx.DrawItemFrame(item, _fileAtlas, _frameInfoAtlas);
                     break;
                 case "STATIC":
                     ctx.DrawStatic(item);

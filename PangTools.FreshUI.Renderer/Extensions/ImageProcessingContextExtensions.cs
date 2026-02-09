@@ -11,16 +11,30 @@ namespace PangTools.FreshUI.Renderer.Extensions;
 
 public static class ImageProcessingContextExtensions
 {
-    public static IImageProcessingContext DrawElement(this IImageProcessingContext ctx, Element element, FileAtlas fileAtlas, FrameInfoAtlas frameInfoAtlas,
+    public static IImageProcessingContext DrawElementFrame(this IImageProcessingContext ctx, Element element, FileAtlas fileAtlas, FrameInfoAtlas frameInfoAtlas,
         bool drawOutline = false)
     {
         Size? size = DimensionHelper.ParseSize(element.Size);
 
-        ctx.DrawFrame(element, fileAtlas, frameInfoAtlas);
+        ctx.DrawFrame(element.Resource, new Rectangle(0, 0, size.Value.Width, size.Value.Height), fileAtlas, frameInfoAtlas);
         
         if (drawOutline)
         {
-            ctx.Draw(Color.Red, 1f, new RectangleF(0, 0,width,height));
+            ctx.Draw(Color.Red, 1f, new RectangleF(0, 0, size.Value.Width, size.Value.Height));
+        }
+
+        return ctx;
+    }
+
+    public static IImageProcessingContext DrawItemFrame(this IImageProcessingContext ctx, Item frameItem,
+        FileAtlas fileAtlas, FrameInfoAtlas frameInfoAtlas)
+    {
+        RectangleF? frameRect = DimensionHelper.ParseRectangle(frameItem.Rectangle);
+        Parameter? bgImgParam = frameItem.GetParameter("bgimg");
+
+        if (frameRect != null)
+        {
+            ctx.DrawFrame(frameItem.Resource, (Rectangle)frameRect, fileAtlas, frameInfoAtlas, bgImgParam?.Value, bgImgParam?.Value);
         }
 
         return ctx;
@@ -108,100 +122,118 @@ public static class ImageProcessingContextExtensions
         return ctx;
     }
 
-    public static IImageProcessingContext DrawFrame(this IImageProcessingContext ctx, Element element, FileAtlas fileAtlas, FrameInfoAtlas frameInfoAtlas, string frameType = "bfrm")
+    public static IImageProcessingContext DrawFrame(this IImageProcessingContext ctx, string resource, Rectangle rect, FileAtlas fileAtlas, FrameInfoAtlas frameInfoAtlas, string frameType = "bfrm", string? frameImage = null)
     {
-        int[] sizes = element.Size.Split(" ").Select(Int32.Parse).ToArray();
-        int width = sizes[0];
-        int height = sizes[1];
-
-        if (element.Resource == null || !frameInfoAtlas.ContainsKey(element.Resource))
+        if (!frameInfoAtlas.ContainsKey(resource))
         {
             return ctx;
         }
         
-        Dictionary<string, FrameInfo> frameInfo = frameInfoAtlas[element.Resource];
-        if (frameInfo.ContainsKey(frameType))
+        Dictionary<string, FrameInfo> frameInfo = frameInfoAtlas[resource];
+        if (frameInfo.ContainsKey(frameType ?? "") || frameImage != null)
         {
-            FrameInfo borderFrameInfo = frameInfo[frameType];
+            FrameInfo borderFrameInfo = null;
+            if (frameInfo.ContainsKey(frameType ?? ""))
+            {
+                borderFrameInfo = frameInfo[frameType];    
+            }
 
-            Image? topLeftImage = fileAtlas.GetImage(borderFrameInfo.FileNames[0]);
-            Image? topCenterImage = fileAtlas.GetImage(borderFrameInfo.FileNames[1]);
-            Image? topRightImage = fileAtlas.GetImage(borderFrameInfo.FileNames[2]);
-            Image? centerLeftImage = fileAtlas.GetImage(borderFrameInfo.FileNames[3]);
-            Image? centerImage = fileAtlas.GetImage(borderFrameInfo.FileNames[4]);
-            Image? centerRightImage = fileAtlas.GetImage(borderFrameInfo.FileNames[5]);
-            Image? bottomLeftImage = fileAtlas.GetImage(borderFrameInfo.FileNames[6]);
-            Image? bottomCenterImage = fileAtlas.GetImage(borderFrameInfo.FileNames[7]);
-            Image? bottomRightImage = fileAtlas.GetImage(borderFrameInfo.FileNames[8]);
-
+            Image? topLeftImage = frameImage != null 
+                ? fileAtlas.GetImage($"{frameImage}00")
+                : fileAtlas.GetImage(borderFrameInfo.FileNames[0]);
+            Image? topCenterImage = frameImage != null 
+                ? fileAtlas.GetImage($"{frameImage}01")
+                : fileAtlas.GetImage(borderFrameInfo.FileNames[1]);
+            Image? topRightImage = frameImage != null 
+                ? fileAtlas.GetImage($"{frameImage}02")
+                : fileAtlas.GetImage(borderFrameInfo.FileNames[2]);
+            Image? centerLeftImage = frameImage != null 
+                ? fileAtlas.GetImage($"{frameImage}03")
+                : fileAtlas.GetImage(borderFrameInfo.FileNames[3]);
+            Image? centerImage = frameImage != null 
+                ? fileAtlas.GetImage($"{frameImage}04") 
+                : fileAtlas.GetImage(borderFrameInfo.FileNames[4]);
+            Image? centerRightImage = frameImage != null 
+                ? fileAtlas.GetImage($"{frameImage}05") 
+                : fileAtlas.GetImage(borderFrameInfo.FileNames[5]);
+            Image? bottomLeftImage = frameImage != null 
+                ? fileAtlas.GetImage($"{frameImage}06") 
+                : fileAtlas.GetImage(borderFrameInfo.FileNames[6]);
+            Image? bottomCenterImage = frameImage != null 
+                ? fileAtlas.GetImage($"{frameImage}07") 
+                : fileAtlas.GetImage(borderFrameInfo.FileNames[7]);
+            Image? bottomRightImage = frameImage != null 
+                ? fileAtlas.GetImage($"{frameImage}08") 
+                : fileAtlas.GetImage(borderFrameInfo.FileNames[8]);
+            
             if (topLeftImage != null)
             {
-                ctx.DrawImage(topLeftImage, new Point(0, 0), 1f);
+                ctx.DrawImage(topLeftImage, new Point(rect.X, rect.Y), 1f);
             }
 
             if (topCenterImage != null)
             {
                 topCenterImage.Mutate(imgCtx => imgCtx.Resize(new Size(
-                        width - topLeftImage.Width - topRightImage.Width,
+                        rect.Width - topLeftImage.Width - topRightImage.Width,
                         topCenterImage.Height
                     )));
 
-                ctx.DrawImage(topCenterImage, new Point(topLeftImage.Width, 0), 1f);
+                ctx.DrawImage(topCenterImage, new Point(rect.X + topLeftImage.Width, rect.Y), 1f);
             }
             
             if (topRightImage != null)
             {
-                ctx.DrawImage(topRightImage, new Point(width - topRightImage.Width, 0), 1f);
+                ctx.DrawImage(topRightImage, new Point(rect.X + rect.Width - topRightImage.Width, rect.Y), 1f);
             }
             
             if (centerLeftImage != null)
             {
                 centerLeftImage.Mutate(imgCtx => imgCtx.Resize(new Size(
                     centerLeftImage.Width,
-                    height - topLeftImage.Height - bottomLeftImage.Height
+                    rect.Height - topLeftImage.Height - bottomLeftImage.Height
                 )));
 
-                ctx.DrawImage(centerLeftImage, new Point(0, topLeftImage.Height), 1f);
+                ctx.DrawImage(centerLeftImage, new Point(rect.X, rect.Y + topLeftImage.Height), 1f);
             }
 
             if (centerImage != null)
             {
                 centerImage.Mutate(imgCtx => imgCtx.Resize(new Size(
-                    width - centerLeftImage.Width - centerRightImage.Width,
-                    height - topLeftImage.Height - bottomLeftImage.Height
+                    rect.Width - centerLeftImage.Width - centerRightImage.Width,
+                    rect.Height - topLeftImage.Height - bottomLeftImage.Height
                 )));
 
-                ctx.DrawImage(centerImage, new Point(topLeftImage.Width, topLeftImage.Height), 1f);
+                ctx.DrawImage(centerImage, new Point(rect.X + topLeftImage.Width, rect.Y + topLeftImage.Height), 1f);
             }
             
             if (centerRightImage != null)
             {
                 centerRightImage.Mutate(imgCtx => imgCtx.Resize(new Size(
                     centerRightImage.Width,
-                    height - topRightImage.Height - bottomRightImage.Height
+                    rect.Height - topRightImage.Height - bottomRightImage.Height
                 )));
 
-                ctx.DrawImage(centerRightImage, new Point(width - centerRightImage.Width, topRightImage.Height), 1f);
+                ctx.DrawImage(centerRightImage, new Point(rect.X + rect.Width - centerRightImage.Width, rect.Y + topRightImage.Height), 1f);
             }
             
             if (bottomLeftImage != null)
             {
-                ctx.DrawImage(bottomLeftImage, new Point(0, height - bottomLeftImage.Height), 1f);
+                ctx.DrawImage(bottomLeftImage, new Point(rect.X, rect.Y + rect.Height - bottomLeftImage.Height), 1f);
             }
             
             if (bottomCenterImage != null)
             {
                 bottomCenterImage.Mutate(imgCtx => imgCtx.Resize(new Size(
-                    width - bottomLeftImage.Width - bottomRightImage.Width,
+                    rect.Width - bottomLeftImage.Width - bottomRightImage.Width,
                     bottomCenterImage.Height
                 )));
 
-                ctx.DrawImage(bottomCenterImage, new Point(bottomLeftImage.Width, height - bottomCenterImage.Height), 1f);
+                ctx.DrawImage(bottomCenterImage, new Point(rect.X + bottomLeftImage.Width, rect.Y + rect.Height - bottomCenterImage.Height), 1f);
             }
             
             if (bottomRightImage != null)
             {
-                ctx.DrawImage(bottomRightImage, new Point(width - bottomRightImage.Width, height - bottomRightImage.Height), 1f);
+                ctx.DrawImage(bottomRightImage, new Point(rect.X + rect.Width - bottomRightImage.Width, rect.Y + rect.Height - bottomRightImage.Height), 1f);
             }
         }
 
