@@ -105,6 +105,9 @@ public class ImageSharpRenderer
                 case "GAUGEBAREX":
                     ctx.DrawGaugebar(item);
                     break;
+                case "VIEWER":
+                    ctx.DrawViewer(item, _fileAtlas, _debug);
+                    break;
             }
         }
     }

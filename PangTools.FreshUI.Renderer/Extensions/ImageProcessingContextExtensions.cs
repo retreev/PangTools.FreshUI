@@ -343,7 +343,6 @@ public static class ImageProcessingContextExtensions
         {
             Color borderColor = Color.Parse(ColorHelper.ARGBtoRBGA(borderColorParam.Value));
 
-            ctx.Draw(borderColor, 1f, new RectangleF(inputRect[0], inputRect[1], inputRect[2] - inputRect[0], inputHeight > 0 ? inputHeight : inputRect[3]));
             ctx.Draw(borderColor, 1f, (RectangleF)inputRect);
         }
 
@@ -383,6 +382,31 @@ public static class ImageProcessingContextExtensions
         
         return ctx;
     }
+
+    public static IImageProcessingContext DrawViewer(this IImageProcessingContext ctx, Item viewerItem, FileAtlas fileAtlas, bool drawOutline = false)
+    {
+        RectangleF? viewerRect = DimensionHelper.ParseRectangle(viewerItem.Rectangle);
+        Image? bgImage = fileAtlas.GetImage(viewerItem.GetParameter("bgimg")?.Value);
+        Image? image = fileAtlas.GetImage(viewerItem.GetParameter("image")?.Value);
+
+        if (viewerRect == null)
+        {
+            return ctx;
+        }
+        
+        if (bgImage != null)
+        {
+            ctx.DrawImage(bgImage, new Point((int)viewerRect.Value.X, (int)viewerRect.Value.Y), 1f);
+        }
+        
+        if (image != null)
+        {
+            ctx.DrawImage(image, new Point((int)viewerRect.Value.X, (int)viewerRect.Value.Y), 1f);
+        }
+
+        if (drawOutline)
+        {
+            ctx.Draw(Color.Purple, 1f, (RectangleF)viewerRect);
         }
 
         return ctx;
