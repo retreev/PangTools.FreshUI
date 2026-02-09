@@ -325,12 +325,6 @@ public static class ImageProcessingContextExtensions
 
         Parameter? backgroundColorParam = inputItem.GetParameter("bgcolor");
         Parameter? borderColorParam = inputItem.GetParameter("bordercolor");
-        Parameter? lineHeightParam = inputItem.GetParameter("lineheight");
-        Parameter? topMarginParam = inputItem.GetParameter("topmargin");
-        int lineHeight = lineHeightParam != null ? Int32.Parse(lineHeightParam.Value) : 0;
-        int topMargin = topMarginParam != null ? Int32.Parse(topMarginParam.Value) : 0;
-
-        int inputHeight = lineHeight + (topMargin * 2);
 
         if (backgroundColorParam != null)
         {
