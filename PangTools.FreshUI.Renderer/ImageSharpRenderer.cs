@@ -101,6 +101,10 @@ public class ImageSharpRenderer
                 case "LISTBOX":
                     ctx.DrawInput(item);
                     break;
+                case "GAUGEBAR":
+                case "GAUGEBAREX":
+                    ctx.DrawGaugebar(item);
+                    break;
             }
         }
     }

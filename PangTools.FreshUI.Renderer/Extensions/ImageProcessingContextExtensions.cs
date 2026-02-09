@@ -344,6 +344,45 @@ public static class ImageProcessingContextExtensions
             Color borderColor = Color.Parse(ColorHelper.ARGBtoRBGA(borderColorParam.Value));
 
             ctx.Draw(borderColor, 1f, new RectangleF(inputRect[0], inputRect[1], inputRect[2] - inputRect[0], inputHeight > 0 ? inputHeight : inputRect[3]));
+            ctx.Draw(borderColor, 1f, (RectangleF)inputRect);
+        }
+
+        return ctx;
+    }
+
+    public static IImageProcessingContext DrawGaugebar(this IImageProcessingContext ctx, Item gaugebarItem)
+    {
+        RectangleF? gaugebarRect = DimensionHelper.ParseRectangle(gaugebarItem.Rectangle);
+        string backgroundColor = ColorHelper.ARGBtoRBGA(gaugebarItem.GetParameter("bgcolor").Value);
+        Color bgColor = Color.Parse(backgroundColor);
+        string foregroundColor = ColorHelper.ARGBtoRBGA(gaugebarItem.GetParameter("color").Value);
+        Color color = Color.Parse(foregroundColor);
+
+        int? borderThickness = null;
+        Parameter? borderThicknessParam = gaugebarItem.GetParameter("border_thickness");
+
+        if (borderThicknessParam != null)
+        {
+            borderThickness = Int32.Parse(borderThicknessParam.Value);
+        }
+        
+        if (gaugebarRect != null)
+        {
+            ctx.Fill(bgColor, (RectangleF)gaugebarRect);
+
+            RectangleF valueRect = (RectangleF)gaugebarRect;
+            valueRect.Width = valueRect.Width / 2;
+
+            ctx.Fill(color, valueRect);
+
+            if (borderThickness != null && borderThickness > 0)
+            {
+                ctx.Draw(bgColor, (float)borderThickness, (RectangleF)gaugebarRect);
+            }
+        }
+        
+        return ctx;
+    }
         }
 
         return ctx;
