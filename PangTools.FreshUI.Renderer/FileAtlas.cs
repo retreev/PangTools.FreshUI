@@ -29,8 +29,13 @@ public class FileAtlas
         return null;
     }
 
-    public Image? GetImage(string fileName)
+    public Image? GetImage(string? fileName)
     {
+        if (fileName == null)
+        {
+            return null;
+        }
+        
         string fullPath = FileNames
             .FirstOrDefault(file => file.ToLower().Contains(fileName.ToLower()) && file.EndsWith(".png", ".jpeg", ".tga", ".jpg"));
 
