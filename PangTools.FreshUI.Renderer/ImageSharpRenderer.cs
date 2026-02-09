@@ -28,7 +28,7 @@ public class ImageSharpRenderer
 
         foreach (Element element in resource.Elements)
         {
-            Image image = new Image<Rgba32>(800, 600, Color.Transparent);
+            Image image = new Image<Rgba32>(1024, 768, Color.Transparent);
 
             switch (element.Type)
             {
