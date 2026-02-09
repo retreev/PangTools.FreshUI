@@ -14,9 +14,7 @@ public static class ImageProcessingContextExtensions
     public static IImageProcessingContext DrawElement(this IImageProcessingContext ctx, Element element, FileAtlas fileAtlas, FrameInfoAtlas frameInfoAtlas,
         bool drawOutline = false)
     {
-        int[] sizes = element.Size.Split(" ").Select(Int32.Parse).ToArray();
-        int width = sizes[0];
-        int height = sizes[1];
+        Size? size = DimensionHelper.ParseSize(element.Size);
 
         ctx.DrawFrame(element, fileAtlas, frameInfoAtlas);
         
@@ -30,9 +28,9 @@ public static class ImageProcessingContextExtensions
     
     public static IImageProcessingContext DrawArea(this IImageProcessingContext ctx, Item areaItem, FileAtlas fileAtlas, bool drawOutline = false)
     {
-        int[]? areaItemRect = areaItem.Rectangle?.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).Select(Int32.Parse).ToArray();
+        RectangleF? areaItemRect = DimensionHelper.ParseRectangle(areaItem.Rectangle);
 
-        if (areaItemRect == null || areaItemRect.Length != 4)
+        if (areaItemRect == null)
         {
             return ctx;
         }
@@ -57,19 +55,19 @@ public static class ImageProcessingContextExtensions
                     bgTexture.Mutate(bgCtx =>
                     {
                         bgCtx.Resize(new Size(
-                            areaItemRect[2] - areaItemRect[0],
-                            areaItemRect[3] - areaItemRect[1]
+                            (int)areaItemRect.Value.Width,
+                            (int)areaItemRect.Value.Height
                         ));
                     });
                 }
                 
-                ctx.DrawImage(bgTexture, new Point(areaItemRect[0], areaItemRect[1]), 1f); 
+                ctx.DrawImage(bgTexture, new Point((int)areaItemRect.Value.X, (int)areaItemRect.Value.Y), 1f); 
             }
         }
 
         if (drawOutline)
         {
-            ctx.Draw(Color.LightBlue, 1f, new RectangleF(areaItemRect[0], areaItemRect[1], areaItemRect[2], areaItemRect[3]));
+            ctx.Draw(Color.LightBlue, 1f, (RectangleF)areaItemRect);
         }
         
         return ctx;
@@ -81,12 +79,12 @@ public static class ImageProcessingContextExtensions
         
         if (buttonItem.Position != null)
         {
-            pos = buttonItem.Position.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).Select(Int32.Parse).ToArray();
+            pos = DimensionHelper.TextToIntArray(buttonItem.Position);
         }
 
         if (buttonItem.Rectangle != null)
         {
-            int[] buttonRect = buttonItem.Rectangle.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).Select(Int32.Parse).ToArray();
+            int[] buttonRect = DimensionHelper.TextToIntArray(buttonItem.Rectangle);
 
             pos = new int[2]
             {
@@ -212,7 +210,7 @@ public static class ImageProcessingContextExtensions
 
     public static IImageProcessingContext DrawStatic(this IImageProcessingContext ctx, Item staticItem)
     {
-        int[] pos = staticItem.Position?.Split(" ").Select(Int32.Parse).ToArray();
+        int[] pos = DimensionHelper.TextToIntArray(staticItem.Position);
 
         if (pos != null && staticItem.Caption != null)
         {
@@ -291,7 +289,7 @@ public static class ImageProcessingContextExtensions
 
     public static IImageProcessingContext DrawInput(this IImageProcessingContext ctx, Item inputItem)
     {
-        int[] inputRect = inputItem.Rectangle.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).Select(Int32.Parse).ToArray();
+        RectangleF? inputRect = DimensionHelper.ParseRectangle(inputItem.Rectangle);
 
         Parameter? backgroundColorParam = inputItem.GetParameter("bgcolor");
         Parameter? borderColorParam = inputItem.GetParameter("bordercolor");
@@ -306,7 +304,7 @@ public static class ImageProcessingContextExtensions
         {
             Color backgroundColor = Color.Parse(ColorHelper.ARGBtoRBGA(backgroundColorParam.Value));
 
-            ctx.Fill(backgroundColor, new RectangleF(inputRect[0], inputRect[1], inputRect[2] - inputRect[0], inputHeight > 0 ? inputHeight : inputRect[3]));
+            ctx.Fill(backgroundColor, (RectangleF)inputRect);
         }
 
         if (borderColorParam != null)
